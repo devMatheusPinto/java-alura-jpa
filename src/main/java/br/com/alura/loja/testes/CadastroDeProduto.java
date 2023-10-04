@@ -10,12 +10,27 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class CadastroDeProduto {
     public static void main(String[] args) {
-        Categoria celulares = new Categoria("CELULARES");
+        cadastrarProduto();
+        EntityManager em = JPAUtil.getEntityManager();
+        ProdutoDao produtoDao = new ProdutoDao(em);
 
-        Produto celular = new Produto("Redmi 1", "Muito legal", new BigDecimal("800"), celulares);
+        Produto p = produtoDao.buscarPorId(1l);
+        System.out.println(p.getPreco());
+
+        List<Produto> todos = produtoDao.buscarPorNomeDaCategoria("CELULARES");
+        todos.forEach(p2 -> System.out.println(p.getNome()));
+
+        BigDecimal precoDoProduto = produtoDao.buscarPrecoDoProdutoComNome("Xiaomi Redmi");
+        System.out.println(precoDoProduto);
+    }
+
+    private static void cadastrarProduto() {
+        Categoria celulares = new Categoria("CELULARES");
+        Produto celular = new Produto("Xiaomi Redmi", "Muito legal", new BigDecimal("800"), celulares );
 
         EntityManager em = JPAUtil.getEntityManager();
         ProdutoDao produtoDao = new ProdutoDao(em);
@@ -23,8 +38,8 @@ public class CadastroDeProduto {
 
         em.getTransaction().begin();
 
-        produtoDao.cadastrar(celular);
         categoriaDao.cadastrar(celulares);
+        produtoDao.cadastrar(celular);
 
         em.getTransaction().commit();
         em.close();
